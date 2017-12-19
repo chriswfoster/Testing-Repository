@@ -27,28 +27,37 @@ var app = require("express")(),
     saveUninitialized: true
   }),
   sharedsession = require("express-socket.io-session")
+
+  app.use(session) // ATTACH SESSION
+
+  var auth = require('passport.socket.io')(cookieParser, redisStore);
+  io.set('authorization', auth);
+
+
+
 io.use(
+  //SHARE SESSION WITH IO SOCKETS
   sharedsession(session, {
     autoSave: true
   })
 )
+
 
 const index = require("./../routes/index")
 app.use(index)
 
 app.use(json())
 app.use(cors())
-// app.use(session)
-
-io.use(sharedsession(session))
 
 massive(connectionString)
   .then(dbInstance => app.set("db", dbInstance))
   .catch(console.log)
 
 //Auth0
+
 app.use(passport.initialize())
 app.use(passport.session())
+
 
 passport.use(
   new Auth0Strategy(
@@ -91,21 +100,27 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj)
 })
 
-
-
 app.get("/login", passport.authenticate("auth0"), function(req, res, next) {
-  req.session.user = req.user 
-  console.log(req.sessionID)
-  console.log()
-  res.redirect("http://localhost:3000/student")
+  console.log("session before hand", req.session)
+  console.log("who is user", req.user)
+
+  req.session.userdata = req.user
+  res.redirect("http://127.0.0.1:3000/student")
 })
 
 //SOCKET.IO STARTS
+
+
+
+
 let interval
 
 let userList = []
 io.sockets.on("connection", socket => {
   console.log("New client connected")
+
+  console.log(socket.handshake.session)
+
 
   if (interval) {
     clearInterval(interval)
@@ -114,6 +129,7 @@ io.sockets.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log(socket.handshake.session)
 
+
     console.log("Client disconnected")
   })
 })
@@ -121,9 +137,10 @@ io.sockets.on("connection", socket => {
 const getApiAndEmit = async socket => {
   try {
     const res = await axios.get("http://localhost:3001/api/questions")
-   
     console.log(socket.handshake.session)
-    console.log(socket.handshake)
+
+    
+    console.log(socket.handshake.session)
     socket.emit("FromAPI", res.data.concat(userList)) // Emitting a new message. It will be consumed by the client
   } catch (error) {
     console.error(`Error: ${error}`)
@@ -142,14 +159,12 @@ app.get("/api/questions", (req, res, next) => {
 
 //DELETE OLD END POINTS /api/questions
 
-
 app.get("/api/me", function(req, res) {
   if (!req.user) {
     return res.status(404)
   }
   res.status(200).json(req.session.user)
 })
-
 
 app.get("/api/users/:id", (req, res, next) => {
   const dbInstance = req.app.get("db")
@@ -162,7 +177,5 @@ app.get("/api/users/:id", (req, res, next) => {
 })
 
 app.get("/api/users", controller.getActiveUsers)
-
-
 
 server.listen(port, () => console.log(`Listening on port ${port}`))
