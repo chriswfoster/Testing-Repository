@@ -1,0 +1,44 @@
+.firstQBox {
+  display: flex;
+  flex-direction: row;
+}
+.questionHere {
+  height: 35vh;
+  width: 80vw;
+  border: 2px solid #2aabe2;
+  margin: 40px;
+  padding: 30px;
+  color: rgb(189, 187, 187);
+  letter-spacing: 1px;
+}
+input {
+  margin: 10px;
+  padding: 5px;
+}
+.roundDivs {
+  display: flex;
+}
+.inRoundDivs {
+  border: 2px solid #2aabe2;
+  margin: 10px;
+  padding: 10px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-radius: 50%;
+  font-size: 16px;
+  color: rgb(172, 172, 172);
+}
+.secondBox {
+  padding-left: 30vw;
+}
+button {
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.inputField {
+  display: flex;
+  align-content: center;
+  flex-direction: column;
+  justify-content: center;
+}

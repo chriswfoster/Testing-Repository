@@ -1,0 +1,44 @@
+.userlist-main-container {
+  height: 80vh;
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #d4d4d4;
+}
+
+.user-card {
+  width: 90%;
+  margin: 5px;
+  padding: 10px;
+  border-style: solid;
+  border-width: 1px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.user-card-left,
+.user-card-right {
+  width: 50%;
+}
+
+.user-card-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-avatar {
+  height: 85px;
+  width: 85px;
+  border-style: solid;
+  border-color: #2aabe2;
+  border-width: 3px;
+  border-radius: 50%;
+  margin: 5px;
+  background: #111;
+  opacity: 0.9;
+}
