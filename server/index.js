@@ -30,8 +30,7 @@ var app = require("express")(),
 
   app.use(session) // ATTACH SESSION
 
-  var auth = require('passport.socket.io')(cookieParser, redisStore);
-  io.set('authorization', auth);
+
 
 
 
@@ -111,6 +110,22 @@ app.get("/login", passport.authenticate("auth0"), function(req, res, next) {
 //SOCKET.IO STARTS
 
 
+io.sockets.on("connection", function(socket) {
+
+  // Accept a login event with user's data
+  socket.on("/login", function(userdata) {
+  console.log("userdata", userdata)
+    socket.handshake.session.userdata = userdata;
+      socket.handshake.session.save();
+  });
+  socket.on("logout", function(userdata) {
+      if (socket.handshake.session.userdata) {
+          delete socket.handshake.session.userdata;
+          socket.handshake.session.save();
+      }
+  });        
+});
+
 
 
 let interval
@@ -118,6 +133,7 @@ let interval
 let userList = []
 io.sockets.on("connection", socket => {
   console.log("New client connected")
+
 
   console.log(socket.handshake.session)
 
@@ -137,10 +153,7 @@ io.sockets.on("connection", socket => {
 const getApiAndEmit = async socket => {
   try {
     const res = await axios.get("http://localhost:3001/api/questions")
-    console.log(socket.handshake.session)
-
-    
-    console.log(socket.handshake.session)
+  
     socket.emit("FromAPI", res.data.concat(userList)) // Emitting a new message. It will be consumed by the client
   } catch (error) {
     console.error(`Error: ${error}`)
